@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Painel · Bolão Copa Junina W3G</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy:#16335c; --navy-deep:#0f2747; --navy-card:#1c3f6e; --navy-line:#2c548a;
+    --amarelo:#ffc20e; --amarelo-esc:#f0a800; --verde:#2aa24a; --verde-esc:#1f8a3c;
+    --azul-faixa:#2b7fd4; --creme:#f5f0e1; --creme-soft:#e9e3d0; --vermelho:#e23b3b;
+    --muted:#97add0;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Fredoka',system-ui,sans-serif;
+    background:radial-gradient(circle at 90% 0%, #1c4076 0%, transparent 45%), var(--navy);
+    color:var(--creme); min-height:100vh; -webkit-tap-highlight-color:transparent; }
+  .wrap { max-width:680px; margin:0 auto; padding:18px 16px 70px; }
+
+  /* LOGIN */
+  .login { max-width:360px; margin:14vh auto 0; text-align:center; }
+  .login .logo-img { width:100%; max-width:240px; height:auto; margin-bottom:6px; }
+  .login p { color:var(--muted); margin:6px 0 22px; font-weight:500; }
+  .login input { width:100%; padding:14px; background:var(--navy-deep); color:var(--creme);
+    border:1.5px solid var(--navy-line); border-radius:12px; font-size:16px; font-family:inherit; text-align:center; }
+  .login input:focus { outline:none; border-color:var(--amarelo); box-shadow:0 0 0 3px rgba(255,194,14,.18); }
+  .login button { width:100%; margin-top:14px; padding:15px; border:none; border-radius:12px;
+    font-family:'Anton',sans-serif; font-size:19px; letter-spacing:1px; color:#fff;
+    background:linear-gradient(180deg,var(--verde),var(--verde-esc)); box-shadow:0 4px 0 #176b2f; cursor:pointer; }
+  .login .err { color:#ff9a9a; font-size:14px; margin-top:12px; min-height:18px; font-weight:500; }
+
+  /* HEADER */
+  .top { display:flex; align-items:center; justify-content:space-between; padding:6px 0 16px; }
+  .top h1 { font-family:'Anton',sans-serif; font-size:26px; color:var(--creme); line-height:1; }
+  .top h1 span { color:var(--amarelo); display:block; font-size:13px; letter-spacing:3px; }
+  .top .reload { background:var(--navy-card); border:1px solid var(--navy-line); color:var(--creme);
+    border-radius:10px; padding:9px 12px; font-size:18px; cursor:pointer; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:18px; }
+  .stat { background:var(--navy-card); border:1px solid var(--navy-line); border-radius:16px; padding:14px 16px; }
+  .stat .label { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); font-weight:600; }
+  .stat .val { font-family:'Anton',sans-serif; font-size:30px; line-height:1.1; margin-top:4px; }
+  .stat .val.y { color:var(--amarelo); } .stat .val.g { color:#5fd07e; }
+  .stat .sub { font-size:12px; color:var(--muted); margin-top:2px; font-weight:500; }
+
+  /* CONFIG BAR */
+  .config { background:var(--navy-card); border:1px solid var(--navy-line); border-radius:16px; padding:14px 16px; margin-bottom:18px; }
+  .config summary { font-weight:700; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; }
+  .config summary::-webkit-details-marker { display:none; }
+  .config summary .chev { color:var(--amarelo); font-size:13px; }
+  .config .body { margin-top:14px; display:grid; gap:12px; }
+  .config label { font-size:12px; font-weight:600; color:var(--creme-soft); display:block; margin-bottom:5px; }
+  .config input { width:100%; padding:11px 12px; background:var(--navy-deep); color:var(--creme);
+    border:1.5px solid var(--navy-line); border-radius:10px; font-size:15px; font-family:inherit; }
+  .config input:focus { outline:none; border-color:var(--amarelo); }
+  .config .grid2 { display:grid; grid-template-columns:1fr 90px; gap:10px; }
+  .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; }
+  .toggle-row .t-label { font-weight:600; font-size:14px; }
+  .switch { position:relative; width:52px; height:30px; }
+  .switch input { display:none; }
+  .switch .slider { position:absolute; inset:0; background:var(--navy-deep); border:1.5px solid var(--navy-line);
+    border-radius:30px; transition:.2s; cursor:pointer; }
+  .switch .slider::before { content:""; position:absolute; width:22px; height:22px; left:3px; top:3px;
+    background:var(--muted); border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider { background:rgba(42,162,74,.25); border-color:var(--verde); }
+  .switch input:checked + .slider::before { transform:translateX(22px); background:#5fd07e; }
+  .config .save { margin-top:4px; padding:12px; border:none; border-radius:10px; font-family:'Anton',sans-serif;
+    font-size:16px; letter-spacing:1px; color:var(--navy-deep); background:var(--amarelo); box-shadow:0 3px 0 var(--amarelo-esc); cursor:pointer; }
+  .config .csv { background:transparent; border:1.5px solid var(--navy-line); color:var(--creme); font-family:'Fredoka';
+    font-weight:600; font-size:14px; padding:11px; border-radius:10px; cursor:pointer; text-decoration:none; text-align:center; display:block; }
+
+  .danger-zone { margin-top:18px; padding-top:16px; border-top:1px dashed var(--navy-line); }
+  .danger-zone .dz-label { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#ff9a9a; font-weight:700; margin-bottom:8px; }
+  .danger-zone .dz-btn { width:100%; background:rgba(226,59,59,.12); border:1.5px solid var(--vermelho); color:#ff9a9a;
+    font-family:'Fredoka'; font-weight:600; font-size:14px; padding:11px; border-radius:10px; cursor:pointer; }
+  .danger-zone .dz-hint { font-size:12px; color:#97add0; margin-top:8px; font-weight:500; text-align:center; }
+  .saved-msg { font-size:13px; color:#5fd07e; font-weight:600; text-align:center; min-height:18px; }
+
+  /* SEÇÃO */
+  .section-title { display:flex; align-items:center; gap:8px; margin:6px 0 14px; }
+  .section-title h2 { font-family:'Anton',sans-serif; font-size:20px; color:var(--amarelo); letter-spacing:.5px; }
+  .section-title .count { background:var(--navy-card); border:1px solid var(--navy-line); color:var(--creme-soft);
+    font-size:12px; font-weight:600; padding:3px 10px; border-radius:20px; }
+
+  /* GRUPO DE PLACAR */
+  .grupo { background:var(--navy-card); border:1px solid var(--navy-line); border-radius:18px; margin-bottom:14px; overflow:hidden; }
+  .grupo-head { display:flex; align-items:center; gap:14px; padding:16px 16px; cursor:pointer; }
+  .grupo-head .placar { font-family:'Anton',sans-serif; font-size:34px; color:var(--creme); line-height:1; white-space:nowrap; }
+  .grupo-head .placar .x { color:var(--amarelo); margin:0 2px; }
+  .grupo-head .flags { font-size:22px; }
+  .grupo-head .info { flex:1; }
+  .grupo-head .info .qtd { font-weight:700; font-size:15px; }
+  .grupo-head .info .qtd b { color:var(--amarelo); font-family:'Anton',sans-serif; font-size:18px; }
+  .grupo-head .info .pg { font-size:12px; color:var(--muted); margin-top:2px; font-weight:500; }
+  .grupo-head .chev { color:var(--amarelo); font-size:14px; transition:transform .2s; }
+  .grupo.open .grupo-head .chev { transform:rotate(180deg); }
+  .grupo-bar { height:6px; background:var(--navy-deep); }
+  .grupo-bar > div { height:100%; background:linear-gradient(90deg, var(--amarelo), var(--amarelo-esc)); }
+
+  .apostadores { display:none; padding:4px 12px 12px; }
+  .grupo.open .apostadores { display:block; }
+  .apostador { display:flex; align-items:center; gap:12px; padding:12px 8px; border-top:1px solid rgba(255,255,255,.06); }
+  .apostador .av { width:38px; height:38px; flex:none; border-radius:50%; background:var(--navy-deep);
+    border:1.5px solid var(--navy-line); display:grid; place-items:center; font-family:'Anton',sans-serif;
+    color:var(--amarelo); font-size:16px; }
+  .apostador .dados { flex:1; min-width:0; }
+  .apostador .nome { font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .apostador .meta { font-size:12.5px; color:var(--muted); font-weight:500; margin-top:1px; }
+  .apostador .meta a { color:var(--azul-faixa); text-decoration:none; }
+  .apostador .acoes { display:flex; gap:6px; flex:none; }
+  .apostador .acoes button { border:none; border-radius:9px; padding:8px 10px; font-size:13px; cursor:pointer; font-weight:600; font-family:'Fredoka'; }
+  .btn-pg { background:rgba(42,162,74,.18); border:1px solid var(--verde) !important; color:#7fe39a; }
+  .btn-pg.on { background:var(--verde); color:#fff; }
+  .btn-del { background:rgba(226,59,59,.14); border:1px solid var(--vermelho) !important; color:#ff9a9a; }
+
+  .empty { text-align:center; padding:50px 20px; color:var(--muted); }
+  .empty .ico { font-size:50px; margin-bottom:12px; }
+  .empty p { font-weight:500; }
+
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(80px); background:var(--navy-deep);
+    border:1px solid var(--verde); color:#fff; font-weight:600; padding:12px 18px; border-radius:11px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4); z-index:50; opacity:0; transition:all .3s; max-width:90%; text-align:center; }
+  .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  .toast.err { border-color:var(--vermelho); }
+
+  .logout { text-align:center; margin-top:24px; }
+  .logout button { background:none; border:none; color:var(--muted); font-family:'Fredoka'; font-size:13px; font-weight:600; cursor:pointer; text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login">
+    <img class="logo-img" src="logo-w3g.svg" alt="Grupo W3G" />
+    <p>Painel do Bolão · Copa Junina</p>
+    <input type="password" id="senha" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')login()" />
+    <button onclick="login()">Entrar</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="wrap" id="dashView" style="display:none;">
+  <div class="top">
+    <h1>Bolão<span>COPA JUNINA W3G</span></h1>
+    <button class="reload" onclick="carregar()" title="Atualizar">↻</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <details class="config" id="configBox">
+    <summary>⚙️ Configurações do bolão <span class="chev">▼</span></summary>
+    <div class="body">
+      <div class="grid2">
+        <div>
+          <label>Time adversário</label>
+          <input type="text" id="cfgAdv" placeholder="Ex: Escócia" />
+        </div>
+        <div>
+          <label>Bandeira</label>
+          <input type="text" id="cfgFlag" placeholder="🏴󠁧󠁢󠁳󠁣󠁴󠁿" />
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="t-label">Apostas abertas</span>
+        <label class="switch"><input type="checkbox" id="cfgAbertas" /><span class="slider"></span></label>
+      </div>
+      <button class="save" onclick="salvarConfig()">Salvar configurações</button>
+      <div class="saved-msg" id="savedMsg"></div>
+      <a class="csv" id="csvLink" href="#">⬇️ Baixar lista completa (CSV)</a>
+
+      <div class="danger-zone">
+        <div class="dz-label">⚠️ Zona de risco</div>
+        <button class="dz-btn" onclick="zerarTudo()">🗑️ Apagar todos os palpites (testes)</button>
+        <div class="dz-hint">Use isso para limpar os palpites de teste antes do evento. Não pode ser desfeito.</div>
+      </div>
+    </div>
+  </details>
+
+  <div class="section-title">
+    <h2>Palpites por placar</h2>
+    <span class="count" id="grpCount"></span>
+  </div>
+
+  <div id="grupos"></div>
+
+  <div class="logout"><button onclick="logout()">Sair do painel</button></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let PASS = sessionStorage.getItem('w3g_pass') || '';
+  let advFlag = '🏴󠁧󠁢󠁳󠁣󠁴󠁿', maxQtd = 1;
+
+  async function login(){
+    const senha = document.getElementById('senha').value;
+    const err = document.getElementById('loginErr'); err.textContent='';
+    try{
+      const r = await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:senha})});
+      const d = await r.json();
+      if(d.ok){ PASS=senha; sessionStorage.setItem('w3g_pass',senha); mostrarDash(); }
+      else err.textContent = d.error || 'Senha incorreta.';
+    }catch(e){ err.textContent='Erro de conexão.'; }
+  }
+  function logout(){ sessionStorage.removeItem('w3g_pass'); PASS=''; location.reload(); }
+
+  function mostrarDash(){
+    document.getElementById('loginView').style.display='none';
+    document.getElementById('dashView').style.display='block';
+    document.getElementById('csvLink').href = '/api/admin/csv?password='+encodeURIComponent(PASS);
+    carregar();
+  }
+
+  function toast(msg,erro){ const el=document.getElementById('toast'); el.textContent=msg;
+    el.className='toast show'+(erro?' err':''); setTimeout(()=>el.classList.remove('show'),2600); }
+
+  function money(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function initials(nome){ const p=nome.trim().split(/\s+/); return ((p[0]||'')[0]||'?').toUpperCase()+((p[1]||'')[0]||'').toUpperCase(); }
+  function soDigitos(t){ return (t||'').replace(/\D/g,''); }
+
+  async function carregar(){
+    try{
+      const r = await fetch('/api/admin/palpites',{headers:{'x-admin-password':PASS}});
+      if(r.status===401){ logout(); return; }
+      const d = await r.json();
+      advFlag = d.config.adversario_flag || '🏴󠁧󠁢󠁳󠁣󠁴󠁿';
+
+      // preencher config
+      document.getElementById('cfgAdv').value = d.config.adversario==='Adversário'?'':d.config.adversario;
+      document.getElementById('cfgFlag').value = d.config.adversario_flag||'';
+      document.getElementById('cfgAbertas').checked = d.config.apostas_abertas;
+
+      renderStats(d.stats, d.config);
+      renderGrupos(d.grupos, d.config);
+    }catch(e){ toast('Erro ao carregar dados.',true); }
+  }
+
+  function renderStats(s, cfg){
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="label">Palpites</div><div class="val y">${s.total}</div><div class="sub">${s.total} ${s.total===1?'corretor':'corretores'}</div></div>
+      <div class="stat"><div class="label">Placares</div><div class="val">${s.total_placares}</div><div class="sub">resultados diferentes</div></div>
+      <div class="stat" style="grid-column:1/-1;"><div class="label">Status das apostas</div><div class="val ${cfg.apostas_abertas?'g':''}" style="font-size:26px;padding-top:4px;">${cfg.apostas_abertas?'ABERTAS':'ENCERRADAS'}</div><div class="sub">${cfg.apostas_abertas?'corretores ainda podem palpitar':'ninguém mais pode palpitar'}</div></div>`;
+    document.getElementById('grpCount').textContent = s.total_placares + (s.total_placares===1?' placar':' placares');
+  }
+
+  function renderGrupos(grupos, cfg){
+    const cont = document.getElementById('grupos');
+    if(!grupos.length){
+      cont.innerHTML = `<div class="empty"><div class="ico">⚽</div><p>Nenhum palpite ainda.<br>Compartilhe o link com os corretores!</p></div>`;
+      return;
+    }
+    maxQtd = Math.max(...grupos.map(g=>g.apostadores.length));
+    cont.innerHTML = grupos.map((g,gi)=>{
+      const qtd = g.apostadores.length;
+      const barW = Math.round((qtd/maxQtd)*100);
+      const aberto = gi===0 ? 'open':'';
+      const linhas = g.apostadores.map(a=>{
+        const tel = soDigitos(a.telefone);
+        const telLink = tel ? `<a href="https://wa.me/55${tel}" target="_blank">📱 ${escapeHtml(a.telefone)}</a>` : '<span style="color:#6f87ab">sem telefone</span>';
+        return `<div class="apostador" data-id="${a.id}">
+          <div class="av">${initials(a.nome)}</div>
+          <div class="dados">
+            <div class="nome">${escapeHtml(a.nome)}</div>
+            <div class="meta">👤 ${escapeHtml(a.supervisor||'—')} · ${telLink}</div>
+          </div>
+          <div class="acoes">
+            <button class="btn-del" onclick="excluir(${a.id})" title="Excluir palpite">🗑</button>
+          </div>
+        </div>`;
+      }).join('');
+      return `<div class="grupo ${aberto}" id="g-${gi}">
+        <div class="grupo-head" onclick="document.getElementById('g-${gi}').classList.toggle('open')">
+          <div class="placar">${g.gols_adversario}<span class="x">×</span>${g.gols_brasil}</div>
+          <div class="flags">${advFlag}🇧🇷</div>
+          <div class="info">
+            <div class="qtd"><b>${qtd}</b> ${qtd===1?'corretor':'corretores'}</div>
+            <div class="pg">${qtd===1?'apostou':'apostaram'} neste placar</div>
+          </div>
+          <div class="chev">▼</div>
+        </div>
+        <div class="grupo-bar"><div style="width:${barW}%"></div></div>
+        <div class="apostadores">${linhas}</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function excluir(id){
+    if(!confirm('Excluir este palpite? Esta ação não pode ser desfeita.')) return;
+    try{
+      const r = await fetch('/api/admin/excluir/'+id,{method:'POST',headers:{'x-admin-password':PASS}});
+      const d = await r.json();
+      if(d.ok){ toast('Palpite excluído.'); carregar(); }
+    }catch(e){ toast('Erro ao excluir.',true); }
+  }
+
+  async function zerarTudo(){
+    if(!confirm('Isso vai APAGAR TODOS os palpites registrados até agora (testes e reais). Esta ação não pode ser desfeita.\n\nTem certeza que quer continuar?')) return;
+    const digite = prompt('Para confirmar, digite a palavra APAGAR (em maiúsculas):');
+    if(digite !== 'APAGAR'){ toast('Cancelado. Nada foi apagado.'); return; }
+    try{
+      const r = await fetch('/api/admin/zerar-tudo',{method:'POST',headers:{'x-admin-password':PASS}});
+      const d = await r.json();
+      if(d.ok){ toast('✓ '+d.removidos+' palpite(s) apagado(s).'); carregar(); }
+      else toast('Erro ao apagar.',true);
+    }catch(e){ toast('Erro de conexão.',true); }
+  }
+
+  async function salvarConfig(){
+    const body = {
+      adversario: document.getElementById('cfgAdv').value.trim() || 'Adversário',
+      adversario_flag: document.getElementById('cfgFlag').value.trim() || '🏴',
+      apostas_abertas: document.getElementById('cfgAbertas').checked,
+    };
+    try{
+      const r = await fetch('/api/admin/config',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':PASS},body:JSON.stringify(body)});
+      const d = await r.json();
+      if(d.ok){ document.getElementById('savedMsg').textContent='✓ Salvo!'; setTimeout(()=>document.getElementById('savedMsg').textContent='',2000); carregar(); }
+    }catch(e){ toast('Erro ao salvar.',true); }
+  }
+
+  // auto-login se já tiver senha salva
+  if(PASS){ mostrarDash(); }
+</script>
+</body>
+</html>
