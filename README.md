@@ -56,8 +56,16 @@ Para centenas de pessoas acessarem pelo celular, publique em um serviço de hosp
 3. No Render: **New + → Web Service** → conecte o repositório.
 4. Ele detecta o `render.yaml` automaticamente. Em **Environment**, defina:
    - `ADMIN_PASSWORD` = a senha que você quiser para o painel.
-   - `DB_PATH` = `/var/data/bolao.db` (para os palpites não se perderem ao reiniciar).
 5. Clique em **Deploy**. Em ~2 minutos você recebe um link público.
+
+> ⚠️ **Sobre o plano gratuito do Render:** ele não tem disco persistente pago, então
+> **não defina a variável `DB_PATH`** — deixe o sistema usar o caminho padrão. Atenção:
+> no plano free, o servidor pode reiniciar de tempos em tempos, e quando isso acontece o
+> banco de dados é reiniciado também (os palpites são perdidos). Por isso, é fundamental
+> usar o botão **"Apagar todos os palpites"** para limpar testes antes do evento, e no
+> dia do evento evitar ficar muito tempo sem nenhum acesso (o "sono" por inatividade pode
+> levar a uma reinicialização). Se quiser dados 100% permanentes mesmo com reinícios,
+> é necessário um plano pago do Render com disco.
 
 ### Outras opções
 - **Railway.app** — detecta o `Procfile`/`Dockerfile` e publica em poucos cliques.
@@ -71,7 +79,7 @@ Para centenas de pessoas acessarem pelo celular, publique em um serviço de hosp
 |------------------|-------------------------------------------------|---------------|
 | `ADMIN_PASSWORD` | Senha do painel administrativo                  | `w3g2026`     |
 | `PORT`           | Porta do servidor                               | `3000`        |
-| `DB_PATH`        | Caminho do banco de dados (use disco no deploy) | `./bolao.db`  |
+| `DB_PATH`        | (deixe em branco no plano free) Caminho do banco de dados | `./bolao.db`  |
 
 O time adversário, a bandeira e abrir/fechar as apostas você ajusta direto pelo painel.
 
