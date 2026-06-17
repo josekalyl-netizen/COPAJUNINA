@@ -51,6 +51,23 @@
   h1 .l2 { color:var(--amarelo); display:block; }
   .sub { font-weight:600; font-size:15px; color:var(--creme-soft); margin-top:8px; }
 
+  .premio { background:linear-gradient(180deg, var(--navy-card) 0%, var(--navy) 100%);
+    border:1px solid var(--navy-line); border-radius:22px; padding:20px 20px 22px; margin-top:22px;
+    text-align:center; position:relative; overflow:hidden; box-shadow:0 18px 40px rgba(0,0,0,.3); }
+  .premio-tag { display:inline-block; font-weight:700; font-size:12px; letter-spacing:2px;
+    color:var(--navy-deep); background:var(--amarelo); padding:5px 14px; border-radius:40px;
+    text-transform:uppercase; box-shadow:0 3px 0 var(--amarelo-esc); margin-bottom:14px; }
+  .premio-img-wrap { position:relative; display:flex; justify-content:center; height:175px; margin-bottom:6px; }
+  .premio-img { max-height:175px; width:auto; filter:drop-shadow(0 18px 14px rgba(0,0,0,.45));
+    animation:flutuar 3.2s ease-in-out infinite; position:relative; z-index:2; }
+  .premio-sombra { position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+    width:120px; height:18px; background:radial-gradient(ellipse at center, rgba(0,0,0,.45) 0%, transparent 75%);
+    border-radius:50%; animation:sombra 3.2s ease-in-out infinite; z-index:1; }
+  @keyframes flutuar { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
+  @keyframes sombra { 0%,100% { transform:translateX(-50%) scale(1); opacity:.5; } 50% { transform:translateX(-50%) scale(.82); opacity:.3; } }
+  .premio-titulo { font-family:'Anton',sans-serif; font-size:22px; color:var(--amarelo); letter-spacing:.5px; margin-top:4px; }
+  .premio-regra { font-size:13.5px; color:var(--creme-soft); font-weight:500; margin-top:8px; line-height:1.5; padding:0 6px; }
+
   .card { background:var(--navy-card); border:1px solid var(--navy-line); border-radius:22px;
     padding:24px 20px 26px; margin-top:22px; box-shadow:0 18px 40px rgba(0,0,0,.35); }
   .card h2 { font-family:'Anton',sans-serif; font-size:24px; letter-spacing:.5px; color:var(--amarelo); margin-bottom:4px; }
@@ -136,6 +153,16 @@
       <h1>Copa Junina<span class="l2">Grupo W3G</span></h1>
       <p class="sub">Dê seu palpite no jogo do Brasil e concorra ao prêmio!</p>
     </header>
+
+    <section class="premio">
+      <div class="premio-tag">🏆 Prêmio</div>
+      <div class="premio-img-wrap">
+        <img src="img/camisa-brasil.png" alt="Camisa oficial do Brasil" class="premio-img" />
+        <div class="premio-sombra"></div>
+      </div>
+      <div class="premio-titulo">Camisa Oficial do Brasil</div>
+      <p class="premio-regra">Quem acertar o placar exato leva a camisa! Se mais de uma pessoa acertar, a camisa é sorteada entre elas.</p>
+    </section>
 
     <section class="card" id="formCard">
       <h2>Faça seu palpite</h2>
