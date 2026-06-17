@@ -131,9 +131,9 @@
 
   <div class="wrap">
     <header>
-      <span class="eyebrow">Bolão Oficial</span>
+      <span class="eyebrow">⚽ 🇧🇷 Bolão Oficial 🎉 🌽</span>
       <h1>Copa Junina<span class="l2">Grupo W3G</span></h1>
-      <p class="sub">Dê seu palpite no jogo do Brasil 🇧🇷 e concorra ao prêmio!</p>
+      <p class="sub">Dê seu palpite no jogo do Brasil e concorra ao prêmio!</p>
     </header>
 
     <section class="card" id="formCard">
@@ -175,8 +175,6 @@
       </div>
 
       <button class="btn" id="enviar" onclick="enviar()">Confirmar palpite ⚽</button>
-      <p class="foot-note">É só confirmar seu palpite! Quem acertar o placar leva o prêmio, que será revelado na hora. 🏆</p>
-      <div class="counter" id="counter"></div>
     </section>
 
     <section class="closed-banner" id="closedBanner" style="display:none;">
@@ -184,12 +182,16 @@
       Procure a organização no evento para mais informações.
     </section>
 
+    <section class="closed-banner" id="jaApostouBanner" style="display:none;">
+      ✋ Você já registrou seu palpite!<br />
+      Cada pessoa pode apostar apenas uma vez. Boa sorte! 🍀
+    </section>
+
     <section class="success" id="success">
       <div class="check">✓</div>
       <h3>Palpite confirmado!</h3>
-      <p>Boa sorte! 🍀 Se você acertar o placar, leva o prêmio — que vamos revelar na hora.</p>
+      <p>Boa Sorte! 🍀</p>
       <div class="ticket" id="ticket"></div>
-      <button class="btn-ghost btn" onclick="novoPalpite()">Fazer outro palpite</button>
     </section>
 
     <div class="brand">
@@ -209,12 +211,17 @@
   function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3200); }
 
   async function carregarInfo(){
+    // trava local: se este aparelho já confirmou um palpite, mostra aviso e nem carrega o resto
+    if(localStorage.getItem('w3g_ja_apostou')==='1'){
+      document.getElementById('formCard').style.display='none';
+      document.getElementById('jaApostouBanner').style.display='block';
+      return;
+    }
     try{
       const r=await fetch('/api/info'); const d=await r.json();
       adversario=d.adversario||"Adversário"; apostasAbertas=d.apostas_abertas; advFlag=d.adversario_flag||"🏴";
       document.getElementById('advShield2').textContent=advFlag;
       document.getElementById('advNome2').textContent=adversario.length>10?adversario.slice(0,10)+'…':adversario;
-      document.getElementById('counter').innerHTML='🎯 Já temos <b>'+d.total+'</b> palpites registrados!';
       if(!apostasAbertas){ document.getElementById('formCard').style.display='none'; document.getElementById('closedBanner').style.display='block'; }
     }catch(e){}
   }
@@ -233,6 +240,7 @@
       const r=await fetch('/api/palpite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const d=await r.json();
       if(!d.ok){ toast(d.error||'Erro ao enviar.'); btn.disabled=false; btn.textContent='Confirmar palpite ⚽'; return; }
+      localStorage.setItem('w3g_ja_apostou','1');
       document.getElementById('ticket').innerHTML=
         '<div class="placar-big">'+advFlag+' '+adv+' × '+br+' 🇧🇷</div>'+
         '<div class="row"><span>Apostador</span><span>'+escapeHtml(nome)+'</span></div>'+
@@ -244,14 +252,6 @@
     }catch(e){ toast('Falha de conexão. Tente novamente.'); btn.disabled=false; btn.textContent='Confirmar palpite ⚽'; }
   }
 
-  function novoPalpite(){
-    document.getElementById('success').classList.remove('show');
-    document.getElementById('formCard').style.display='block';
-    ['nome','telefone','supervisor'].forEach(id=>document.getElementById(id).value='');
-    br=0; adv=0; document.getElementById('brNum').textContent='0'; document.getElementById('advNum').textContent='0';
-    document.getElementById('enviar').disabled=false; document.getElementById('enviar').textContent='Confirmar palpite ⚽';
-    carregarInfo(); window.scrollTo({top:0,behavior:'smooth'});
-  }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
   carregarInfo();
 </script>

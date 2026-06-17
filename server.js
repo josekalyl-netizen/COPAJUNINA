@@ -68,6 +68,11 @@ const insertPalpite = db.prepare(`
   VALUES (@nome, @telefone, @supervisor, @gols_brasil, @gols_adversario, 0, @criado_em)
 `);
 
+// normaliza telefone: mantém só dígitos, para comparar de forma confiável
+function normalizarTelefone(t) {
+  return (t || "").replace(/\D/g, "");
+}
+
 app.post("/api/palpite", (req, res) => {
   if (getConfig("apostas_abertas", "1") !== "1")
     return res.status(403).json({ ok: false, error: "As apostas estão encerradas." });
@@ -82,6 +87,15 @@ app.post("/api/palpite", (req, res) => {
   if (!supervisor) return res.status(400).json({ ok: false, error: "Informe seu supervisor." });
   if (Number.isNaN(gb) || Number.isNaN(ga) || gb < 0 || ga < 0 || gb > 20 || ga > 20)
     return res.status(400).json({ ok: false, error: "Placar inválido." });
+
+  // trava: um palpite por telefone
+  const telNormalizado = normalizarTelefone(telefone);
+  const todos = db.prepare("SELECT id, telefone FROM palpites").all();
+  const jaApostou = todos.some((p) => normalizarTelefone(p.telefone) === telNormalizado && telNormalizado !== "");
+  if (jaApostou) {
+    return res.status(409).json({ ok: false, error: "Este telefone já registrou um palpite. Cada pessoa pode apostar apenas uma vez." });
+  }
+
   insertPalpite.run({ nome, telefone, supervisor, gols_brasil: gb, gols_adversario: ga, criado_em: new Date().toISOString() });
   res.json({ ok: true });
 });
