@@ -39,6 +39,16 @@ if (getConfigStmt.get("adversario_flag") === undefined) setConfig.run("adversari
 if (getConfigStmt.get("valor_aposta") === undefined) setConfig.run("valor_aposta", "20");
 if (getConfigStmt.get("apostas_abertas") === undefined) setConfig.run("apostas_abertas", "1");
 
+// horário-limite automático: 19h00 de Brasília (UTC-3) do dia 24/06/2026
+// equivalente a 22h00 UTC do mesmo dia
+const PRAZO_LIMITE_UTC = new Date("2026-06-24T22:00:00Z");
+
+function apostasAindaAbertas() {
+  if (getConfig("apostas_abertas", "1") !== "1") return false; // fechado manualmente pelo admin
+  if (new Date() >= PRAZO_LIMITE_UTC) return false; // passou do horário-limite automático
+  return true;
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -58,7 +68,7 @@ app.get("/api/info", (req, res) => {
     adversario: getConfig("adversario", "Adversário"),
     adversario_flag: getConfig("adversario_flag", "🏴"),
     valor_aposta: getConfig("valor_aposta", "20"),
-    apostas_abertas: getConfig("apostas_abertas", "1") === "1",
+    apostas_abertas: apostasAindaAbertas(),
     total: db.prepare("SELECT COUNT(*) AS n FROM palpites").get().n,
   });
 });
@@ -74,7 +84,7 @@ function normalizarTelefone(t) {
 }
 
 app.post("/api/palpite", (req, res) => {
-  if (getConfig("apostas_abertas", "1") !== "1")
+  if (!apostasAindaAbertas())
     return res.status(403).json({ ok: false, error: "As apostas estão encerradas." });
   const b = req.body || {};
   const nome = (b.nome || "").trim();
@@ -90,10 +100,16 @@ app.post("/api/palpite", (req, res) => {
 
   // trava: um palpite por telefone
   const telNormalizado = normalizarTelefone(telefone);
-  const todos = db.prepare("SELECT id, telefone FROM palpites").all();
-  const jaApostou = todos.some((p) => normalizarTelefone(p.telefone) === telNormalizado && telNormalizado !== "");
-  if (jaApostou) {
-    return res.status(409).json({ ok: false, error: "Este telefone já registrou um palpite. Cada pessoa pode apostar apenas uma vez." });
+  const todos = db.prepare("SELECT id, telefone, gols_brasil, gols_adversario FROM palpites").all();
+  const existente = todos.find((p) => normalizarTelefone(p.telefone) === telNormalizado && telNormalizado !== "");
+  if (existente) {
+    return res.status(409).json({
+      ok: false,
+      error: "Este telefone já registrou um palpite. Cada pessoa pode apostar apenas uma vez.",
+      ja_apostou: true,
+      gols_brasil: existente.gols_brasil,
+      gols_adversario: existente.gols_adversario,
+    });
   }
 
   insertPalpite.run({ nome, telefone, supervisor, gols_brasil: gb, gols_adversario: ga, criado_em: new Date().toISOString() });

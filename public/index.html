@@ -92,6 +92,7 @@
 
   .closed-banner { margin-top:22px; background:rgba(226,59,59,.14); border:1.5px solid var(--vermelho);
     border-radius:16px; padding:16px; text-align:center; font-weight:600; color:#ffd2d2; }
+  .ja-apostou-placar { font-family:'Anton',sans-serif; font-size:32px; color:var(--amarelo); margin:12px 0; letter-spacing:1px; }
 
   .success { display:none; text-align:center; padding:30px 20px; background:var(--navy-card);
     border:1.5px solid var(--verde); border-radius:22px; margin-top:22px; }
@@ -184,7 +185,9 @@
 
     <section class="closed-banner" id="jaApostouBanner" style="display:none;">
       ✋ Você já registrou seu palpite!<br />
-      Cada pessoa pode apostar apenas uma vez. Boa sorte! 🍀
+      Cada pessoa pode apostar apenas uma vez.
+      <div class="ja-apostou-placar" id="jaApostouPlacar"></div>
+      Boa sorte! 🍀
     </section>
 
     <section class="success" id="success">
@@ -210,11 +213,20 @@
   }
   function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3200); }
 
+  function mostrarBannerJaApostou(golsBrasil, golsAdv){
+    document.getElementById('formCard').style.display='none';
+    document.getElementById('jaApostouBanner').style.display='block';
+    if(golsBrasil!==undefined && golsBrasil!==null){
+      document.getElementById('jaApostouPlacar').textContent = advFlag+' '+golsAdv+' × '+golsBrasil+' 🇧🇷';
+    }
+  }
+
   async function carregarInfo(){
-    // trava local: se este aparelho já confirmou um palpite, mostra aviso e nem carrega o resto
+    // trava local: se este aparelho já confirmou um palpite, mostra aviso (com o placar salvo) e nem carrega o resto
     if(localStorage.getItem('w3g_ja_apostou')==='1'){
-      document.getElementById('formCard').style.display='none';
-      document.getElementById('jaApostouBanner').style.display='block';
+      const gb = localStorage.getItem('w3g_gols_brasil');
+      const ga = localStorage.getItem('w3g_gols_adv');
+      mostrarBannerJaApostou(gb!==null?parseInt(gb,10):undefined, ga!==null?parseInt(ga,10):undefined);
       return;
     }
     try{
@@ -239,8 +251,21 @@
     try{
       const r=await fetch('/api/palpite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const d=await r.json();
-      if(!d.ok){ toast(d.error||'Erro ao enviar.'); btn.disabled=false; btn.textContent='Confirmar palpite ⚽'; return; }
+      if(!d.ok){
+        if(d.ja_apostou){
+          // esse telefone já apostou (de outro aparelho/sessão) — mostra o placar que está registrado
+          localStorage.setItem('w3g_ja_apostou','1');
+          localStorage.setItem('w3g_gols_brasil', d.gols_brasil);
+          localStorage.setItem('w3g_gols_adv', d.gols_adversario);
+          mostrarBannerJaApostou(d.gols_brasil, d.gols_adversario);
+          window.scrollTo({top:0,behavior:'smooth'});
+          return;
+        }
+        toast(d.error||'Erro ao enviar.'); btn.disabled=false; btn.textContent='Confirmar palpite ⚽'; return;
+      }
       localStorage.setItem('w3g_ja_apostou','1');
+      localStorage.setItem('w3g_gols_brasil', br);
+      localStorage.setItem('w3g_gols_adv', adv);
       document.getElementById('ticket').innerHTML=
         '<div class="placar-big">'+advFlag+' '+adv+' × '+br+' 🇧🇷</div>'+
         '<div class="row"><span>Apostador</span><span>'+escapeHtml(nome)+'</span></div>'+
